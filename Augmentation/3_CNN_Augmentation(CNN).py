@@ -3,16 +3,16 @@ import keras
 import csv
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Conv2D, MaxPooling2D, Flatten, BatchNormalization
-from keras.optimizers import RMSprop
+from keras.optimizers import Adam
 from keras.callbacks import CSVLogger
 from keras.preprocessing.image import ImageDataGenerator
 
 img_size = 64
-n_epochs = 5
-batch_sizes = 128
-n_steps_per_epoch = 1500
-n_validation_steps = 1500
-csv_logger = CSVLogger('cnn_training_Alex.csv')
+n_epochs = 100
+batch_sizes = 4
+n_steps_per_epoch = 500
+n_validation_steps = 100
+csv_logger = CSVLogger('cnn_aug_1.csv')
 
 try:
     train_data = np.load('CNN_train_feature.npy') 
@@ -48,35 +48,16 @@ test_generator = test_datagen.flow(test_data, test_target, batch_size = batch_si
 #Build AlexNet model
 model = Sequential()
  
-#First Convolution and Pooling layer
-model.add(Conv2D(96,(11,11),strides=(4,4),input_shape=(img_size, img_size, 3),padding='valid',activation='relu'))
-model.add(MaxPooling2D(pool_size=(3,3),strides=(2,2)))
-    
-#Second Convolution and Pooling layer
-model.add(Conv2D(256,(5,5),strides=(1,1),padding='same',activation='relu'))
-model.add(MaxPooling2D(pool_size=(3,3),strides=(2,2)))
-    
-#Three Convolution layer and Pooling Layer
-model.add(Conv2D(384,(3,3),strides=(1,1),padding='same',activation='relu'))
-model.add(Conv2D(384,(3,3),strides=(1,1),padding='same',activation='relu'))
-model.add(Conv2D(256,(3,3),strides=(1,1),padding='same',activation='relu'))
-model.add(MaxPooling2D(pool_size=(2,2),strides=(2,2)))
-    
-#Fully connection layer
+model.add(Conv2D(64, kernel_size=5, input_shape=(img_size, img_size, 3), activation='relu'))
+model.add(MaxPooling2D(pool_size=(3,3)))
+model.add(Conv2D(32, kernel_size=3, activation='relu'))
+model.add(Dense(512, activation='relu'))
 model.add(Flatten())
-model.add(Dense(4096,activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(4096,activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(1000,activation='relu'))
-model.add(Dropout(0.5))
-    
-#Classfication layer
 model.add(Dense(10, activation='softmax'))
 
 model.summary()
 
-model.compile(loss="categorical_crossentropy", optimizer = RMSprop() ,
+model.compile(loss="categorical_crossentropy", optimizer = Adam(lr=0.0001) ,
               metrics=["accuracy"])
 
 model.fit_generator(train_generator,
@@ -86,4 +67,9 @@ model.fit_generator(train_generator,
                     validation_steps = n_validation_steps,
                     callbacks=[csv_logger])
 
-model.save('CNN_model_Alex.h5')
+model.save('CNN_model_cnn.h5')
+
+x = model.evaluate_generator(test_generator, steps=n_validation_steps)
+print(x)
+
+input('')

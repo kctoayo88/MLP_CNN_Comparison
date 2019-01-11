@@ -3,19 +3,19 @@ import keras
 import csv
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Conv2D, MaxPooling2D, Flatten
-from keras.optimizers import RMSprop
+from keras.optimizers import RMSprop, Adam
 from keras.callbacks import CSVLogger
 from keras.preprocessing.image import ImageDataGenerator
 
 img_size = 64
-n_epochs = 5
-batch_sizes = 64
-n_steps_per_epoch = 1500
-n_validation_steps = 1500
-#csv_logger = CSVLogger('cnn_training_vgg_test.csv')
+n_epochs = 30
+batch_sizes = 8
+n_steps_per_epoch = 500
+n_validation_steps = 100
+csv_logger = CSVLogger('cnn_training_vgg_test.csv')
 model_file_name = 'CNN_Model_vgg_test.h5'
 
-def train(train_count):
+def train():
     try:
         train_data = np.load('CNN_train_feature.npy') 
         train_target = np.load('CNN_train_target.npy') 
@@ -70,11 +70,10 @@ def train(train_count):
 
     model.summary()
 
-    model.compile(loss="categorical_crossentropy", optimizer = RMSprop() ,
+    model.compile(loss="categorical_crossentropy", optimizer = Adam(lr=0.0001) ,
                   metrics=["accuracy"])
 
 
-    csv_logger = CSVLogger('cnn_training_vgg_test%s.csv' % (train_count))
     model.fit_generator(train_generator,
                         epochs=n_epochs,
                         validation_data=test_generator,
@@ -85,5 +84,4 @@ def train(train_count):
 
     model.save(model_file_name)
 
-for train_count in range(0,4):
-    train(train_count)
+train()

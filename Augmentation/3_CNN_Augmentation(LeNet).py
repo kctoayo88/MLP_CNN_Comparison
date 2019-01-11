@@ -4,15 +4,15 @@ import csv
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Conv2D, MaxPooling2D, Flatten
 from keras.models import Model
-from keras.optimizers import RMSprop
+from keras.optimizers import Adam
 from keras.callbacks import CSVLogger
 from keras.preprocessing.image import ImageDataGenerator
 
 img_size = 64
-n_epochs = 10
-batch_sizes = 64
-n_steps_per_epoch = 1500
-n_validation_steps = 1500
+n_epochs = 35
+batch_sizes = 12
+n_steps_per_epoch = 500
+n_validation_steps = 100
 csv_logger = CSVLogger('cnn_training_lenet.csv')
 model_file_name = 'CNN_Model_lenet.h5'
 try:
@@ -60,7 +60,7 @@ model.add(Dense(1024, activation = 'relu'))
 model.add(Dropout(0.5))
 model.add(Dense(10, activation = 'softmax'))
 
-model.compile(optimizer = RMSprop(), 
+model.compile(optimizer = Adam(lr=0.0001), 
               loss='categorical_crossentropy', 
               metrics=['accuracy'])
 

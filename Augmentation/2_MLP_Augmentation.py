@@ -2,19 +2,16 @@ import numpy as np
 import keras
 import csv
 from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation 
-from keras.optimizers import SGD
+from keras.layers import Dense, Dropout, Activation, BatchNormalization
+from keras.optimizers import Adam, SGD
 from keras.callbacks import CSVLogger
-from keras.preprocessing.image import ImageDataGenerator
 
 img_size = 64
-n_epochs = 100
-batch_sizes = 128
-n_steps_per_epoch = 1500
-n_validation_steps = 1500
+n_epochs = 500
+batch_sizes = 1024
+csv_name = 'mlp_training_ok.csv'
 
-
-def train(train_count):
+def train():
     try:
         train_data = np.load('MLP_train_feature.npy') 
         train_target = np.load('MLP_train_target.npy') 
@@ -41,30 +38,27 @@ def train(train_count):
 
 
 
-    model = Sequential() 
-# Dense(64) is a fully-connected layer with 64 hidden units. 
-# in the first layer, you must specify the expected input data shape: # here, 20-dimensional vectors. 
-    model.add(Dense(512, activation='relu', input_shape=(img_size*img_size*3,)))   ## 全連結 64
-    model.add(Dropout(0.1))   ### 為防止overtrained，只keep 50%之weights
-    model.add(Dense(256, activation='relu')) ## 全連結 64
-    model.add(Dense(256, activation='relu')) ## 全連結 64
-    model.add(Dropout(0.1))
-    model.add(Dense(256, activation='relu')) ## 全連結 64
-    model.add(Dense(256, activation='relu')) ## 全連結 64
-    model.add(Dropout(0.1))
-    model.add(Dense(256, activation='relu')) ## 全連結 64
-    model.add(Dense(10, activation='softmax')) ## 輸出 10 類
+    model = Sequential()
+    model.add(Dense(800, activation='relu', input_shape=(img_size*img_size*3,)))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(1024, activation='relu'))
+    model.add(BatchNormalization())    
+    model.add(Dense(10, activation='softmax'))
     model.summary()
 
-    model.compile(loss = 'categorical_crossentropy', optimizer = 'adadelta', 
+    model.compile(loss = 'categorical_crossentropy', optimizer = Adam(lr=0.000001), 
                   metrics=['accuracy'])  
 
-    csv_logger = CSVLogger('mlp_training_test%s.csv' % (train_count))
-    fit_score = model.fit (train_data, train_target, epochs = n_epochs, 
+    csv_logger = CSVLogger(csv_name)
+    model.fit (train_data, train_target, epochs = n_epochs, 
                            batch_size = batch_sizes, validation_data=(test_data, test_target),
+                           shuffle=True,
                            callbacks=[csv_logger])
 
-    model.save('MLP_model2.h5')
+    model.save('MLP_Model.h5')
 
-for train_count in range(0,4):
-    train(train_count)
+    eva = model.evaluate(test_data,test_target,batch_sizes)
+    print(eva)
+
+if __name__ == '__main__':
+    train()
