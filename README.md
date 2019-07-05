@@ -21,5 +21,9 @@ Hope you love this project !
 
 **Plot:**
 
+(MLP)
 ![plot1](Readme/plot1.JPG)
+
+
+(CNN)
 ![plot2](Readme/plot2.JPG)
