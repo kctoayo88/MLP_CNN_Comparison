@@ -3,7 +3,7 @@
 ## Overview
 
 Hello all,
-There are 10 class of dataset:
+There are 10 classes of reclaim wafer defective feature maps in the dataset. 
 Two type of dataset preprocessing to test with CNN and MLP 
 
 `Augmentation` `Balencing`
